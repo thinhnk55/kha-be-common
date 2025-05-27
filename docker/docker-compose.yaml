@@ -1,0 +1,30 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: local-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: SNTB@13nkt
+      POSTGRES_DB: sample
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+      - ./initdb:/docker-entrypoint-initdb.d
+    networks:
+      - local-net
+
+  redis:
+    image: redis:7.4.2
+    container_name: local-redis
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--requirepass", "SNTB@13nkt"]
+    volumes:
+      - ./data/redis:/data
+    networks:
+      - local-net
+
+networks:
+  local-net:
+    driver: bridge

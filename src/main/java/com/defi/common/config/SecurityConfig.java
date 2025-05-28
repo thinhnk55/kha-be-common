@@ -49,7 +49,7 @@ public class SecurityConfig {
         /**
          * JWT configuration containing public paths and other JWT-related settings.
          */
-        private final JwtConfig jwtConfig;
+        private final SecurityProperties securityProperties;
 
         /**
          * Configures the security filter chain with JWT authentication and
@@ -62,7 +62,7 @@ public class SecurityConfig {
          */
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-                String[] publicPaths = jwtConfig.getPublicPaths().stream()
+                String[] publicPaths = securityProperties.getPublicPaths().stream()
                                 .map(s -> s + "/**").toArray(String[]::new);
                 http
                                 .csrf(AbstractHttpConfigurer::disable)

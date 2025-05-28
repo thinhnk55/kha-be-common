@@ -4,6 +4,7 @@ import com.defi.common.token.helper.RSAKeyUtil;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
 import lombok.Data;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,7 +12,6 @@ import org.springframework.context.annotation.Configuration;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Duration;
-import java.util.List;
 
 /**
  * {@code JwtConfig} provides configuration for JWT token generation and
@@ -65,11 +65,6 @@ public class JwtConfig {
     private Duration refreshTokenTimeToLive;
 
     /**
-     * List of URL paths that are publicly accessible without authentication.
-     */
-    private List<String> publicPaths;
-
-    /**
      * Creates an RSA signature verifier bean for JWT token validation.
      * Uses the configured public key to verify token signatures.
      *
@@ -90,6 +85,7 @@ public class JwtConfig {
      * @throws Exception if the private key cannot be loaded or parsed
      */
     @Bean
+    @ConditionalOnProperty(prefix = "auth.jwt", name = "private-key")
     public RSASSASigner rsassaSigner() throws Exception {
         RSAPrivateKey key = RSAKeyUtil.readRSAPrivateKeyFromPEM(privateKey, paraphrase);
         return new RSASSASigner(key);

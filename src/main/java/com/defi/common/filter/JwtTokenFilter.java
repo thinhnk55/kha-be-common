@@ -1,11 +1,12 @@
 package com.defi.common.filter;
 
-import com.defi.common.config.JwtConfig;
-import com.defi.common.token.entity.Token;
-import com.defi.common.token.entity.TokenType;
-import com.defi.common.token.service.TokenService;
 import com.defi.common.api.BaseResponse;
 import com.defi.common.api.CommonMessage;
+import com.defi.common.config.JwtConfig;
+import com.defi.common.config.SecurityProperties;
+import com.defi.common.token.entity.Token;
+import com.defi.common.token.entity.TokenType;
+import com.defi.common.token.service.TokenVerifierService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -63,9 +64,14 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     private final JwtConfig config;
 
     /**
+     * Security configuration containing public paths and other settings.
+     */
+    private final SecurityProperties securityProperties;
+
+    /**
      * Service for parsing and validating JWT tokens.
      */
-    private final TokenService tokenService;
+    private final TokenVerifierService tokenVerifierService;
 
     /**
      * Jackson ObjectMapper for JSON serialization of error responses.
@@ -94,7 +100,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         }
 
         String accessToken = resolveToken(req);
-        Token token = tokenService.parseToken(accessToken);
+        Token token = tokenVerifierService.parseToken(accessToken);
         if (token == null || token.getTokenType() != TokenType.ACCESS_TOKEN) {
             res.setContentType("application/json;charset=UTF-8");
             res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -115,7 +121,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
      * @return true if the path is public, false otherwise
      */
     private boolean isPublicPath(String path) {
-        return config.getPublicPaths().stream().anyMatch(path::startsWith);
+        return securityProperties.getPublicPaths().stream().anyMatch(path::startsWith);
     }
 
     /**

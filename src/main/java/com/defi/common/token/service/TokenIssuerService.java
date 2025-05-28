@@ -6,25 +6,22 @@ import com.defi.common.token.entity.TokenType;
 import java.util.List;
 
 /**
- * {@code TokenService} provides JWT token generation, refresh, and parsing
- * operations.
- * This service interface defines the contract for managing authentication
- * tokens in the system.
+ * {@code TokenIssuerService} handles JWT token generation and refresh operations.
+ * This service provides methods for creating and renewing authentication tokens.
  *
  * <p>
  * The service supports:
  * </p>
  * <ul>
- * <li>Token generation with custom claims and expiration</li>
- * <li>Token refresh for extending session lifetime</li>
- * <li>Token parsing and validation</li>
+ *   <li>Token generation with custom claims and expiration</li>
+ *   <li>Token refresh for extending session lifetime</li>
  * </ul>
  *
  * <p>
  * All tokens are signed using RSA signatures for security.
  * </p>
  */
-public interface TokenService {
+public interface TokenIssuerService {
 
     /**
      * Generates a new JWT token with the specified claims and expiration.
@@ -39,8 +36,8 @@ public interface TokenService {
      * @return the generated JWT token as a string
      */
     String generateToken(String sessionId, TokenType type,
-            String subjectID, String subjectName, List<String> roles,
-            List<String> groups, long timeToLive);
+                         String subjectID, String subjectName, List<String> roles,
+                         List<String> groups, long timeToLive);
 
     /**
      * Refreshes an existing token by generating a new one with updated expiration.
@@ -51,13 +48,4 @@ public interface TokenService {
      * @return the refreshed JWT token as a string
      */
     String refreshToken(Token token, int timeToLive);
-
-    /**
-     * Parses and validates a JWT token string, extracting its claims.
-     *
-     * @param token the JWT token string to parse
-     * @return a {@link Token} object containing the parsed claims
-     * @throws RuntimeException if the token is invalid or expired
-     */
-    Token parseToken(String token);
 }

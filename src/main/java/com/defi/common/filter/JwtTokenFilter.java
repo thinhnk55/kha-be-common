@@ -143,6 +143,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 .toList();
 
         CustomUserPrincipal principal = new CustomUserPrincipal(
+                Long.parseLong(token.getSessionId()),
                 Long.parseLong(token.getSubjectId()),
                 token.getSubjectName(),
                 token.getRoles().stream().map(Long::valueOf).toList(),

@@ -31,6 +31,10 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 public class CustomUserPrincipal implements UserDetails {
+    /**
+     * The unique identifier of the authenticated session.
+     */
+    private final Long sessionId;
 
     /**
      * The unique identifier of the authenticated user.

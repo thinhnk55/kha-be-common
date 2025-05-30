@@ -4,43 +4,31 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * {@code JacksonConfig} configures the Jackson ObjectMapper for JSON
- * serialization and deserialization.
- * This configuration customizes the default Jackson behavior to handle Java 8
- * time types and unknown properties.
- *
+ * Jackson configuration for JSON serialization and deserialization.
+ * 
  * <p>
- * The configuration applies the following customizations:
+ * This configuration class provides ObjectMapper and other JSON-related
+ * beans used throughout the application for data conversion.
  * </p>
- * <ul>
- * <li>Registers {@link JavaTimeModule} for proper Java 8 time type support</li>
- * <li>Disables timestamp serialization for dates (uses ISO format instead)</li>
- * <li>Disables failure on unknown JSON properties during deserialization</li>
- * </ul>
- *
- * <p>
- * These settings ensure consistent JSON handling across the application and
- * improve
- * compatibility with different client implementations.
- * </p>
+ * 
+ * @author Defi Team
+ * @since 1.0.0
  */
 @Configuration
-@RequiredArgsConstructor
 public class JacksonConfig {
 
     /**
-     * The Spring-managed ObjectMapper instance to be customized.
-     */
-    private final ObjectMapper mapper;
-
-    /**
-     * Customizes the ObjectMapper with application-specific settings.
-     * This method is called automatically after dependency injection is complete.
+     * Creates an ObjectMapper bean for JSON parsing and serialization.
+     * 
+     * <p>
+     * This ObjectMapper is used by components that need to convert
+     * between Java objects and JSON, such as API response parsing,
+     * error response generation, and data serialization.
+     * </p>
      * 
      * <p>
      * Applied customizations:
@@ -50,11 +38,22 @@ public class JacksonConfig {
      * <li>ISO date format instead of timestamps</li>
      * <li>Lenient deserialization that ignores unknown properties</li>
      * </ul>
+     * 
+     * @return configured ObjectMapper instance
      */
-    @PostConstruct
-    public void customizeObjectMapper() {
+    @Bean
+    public ObjectMapper objectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+
+        // Register Java 8 time module
         mapper.registerModule(new JavaTimeModule());
+
+        // Use ISO date format instead of timestamps
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+        // Ignore unknown properties during deserialization
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+
+        return mapper;
     }
 }

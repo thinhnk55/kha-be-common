@@ -2,7 +2,6 @@ package com.defi.common.config;
 
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
-import com.defi.common.casbin.config.CasbinProperties;
 
 /**
  * Common application configuration that enables all configuration properties.

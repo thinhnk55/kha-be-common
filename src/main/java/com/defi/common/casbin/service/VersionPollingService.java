@@ -1,6 +1,6 @@
 package com.defi.common.casbin.service;
 
-import com.defi.common.casbin.config.CasbinProperties;
+import com.defi.common.config.CasbinProperties;
 import com.defi.common.casbin.util.PolicySourceParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

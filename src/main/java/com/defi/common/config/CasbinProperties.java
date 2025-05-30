@@ -1,4 +1,4 @@
-package com.defi.common.casbin.config;
+package com.defi.common.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

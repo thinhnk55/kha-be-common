@@ -264,4 +264,8 @@ public class VersionPollingService {
             throw e; // Re-throw to be caught by the caller
         }
     }
+    public void setCachedVersion(long version) {
+        cachedVersion.set(version);
+        log.info("Cached version updated to: {}", version);
+    }
 }

@@ -1,6 +1,7 @@
 package com.defi.common.casbin.event;
 
 import com.defi.common.casbin.service.PolicyLoader;
+import com.defi.common.casbin.service.VersionPollingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.casbin.jcasbin.main.Enforcer;
@@ -55,6 +56,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class PolicyEventListener implements MessageListener {
 
+    private final VersionPollingService versionPollingService;
     private final PolicyLoader policyLoader;
     private final Enforcer enforcer;
 
@@ -92,10 +94,12 @@ public class PolicyEventListener implements MessageListener {
             // Check if it's a reload message
             if (messageBody.startsWith(PolicyEventConstant.RELOAD_MESSAGE)) {
                 log.info("Processing policy reload event from channel: {}", channel);
-
-                // Trigger policy reload directly
+                // Extract version if needed (not used in this implementation)
+                long version = Long.parseLong(messageBody.split(":")[1]);
+                versionPollingService.setCachedVersion(version);
                 policyLoader.loadPolicies(enforcer);
-                log.info("Policy reload completed successfully");
+
+                log.info("Policy reload completed successfully version: {}", version);
 
             } else {
                 log.debug("Ignoring unknown message: {}", messageBody);

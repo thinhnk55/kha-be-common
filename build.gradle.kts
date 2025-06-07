@@ -19,9 +19,10 @@ tasks.jar {
 
 val groupId = "com.github.thinhnk55"
 val artifactId = "kha-be-common"
-val version = "1.0.0"
+val versionId = "1.0.8"
 
 group = groupId
+version = versionId
 
 repositories {
 	mavenCentral()
@@ -73,7 +74,7 @@ publishing {
 			from(components["java"])
 			groupId = groupId   // Sử dụng biến cho groupId
 			artifactId = artifactId  // Sử dụng biến cho artifactId
-			version = version  // Sử dụng biến cho version
+			version = versionId  // Sử dụng biến cho version
 		}
 	}
 	repositories {

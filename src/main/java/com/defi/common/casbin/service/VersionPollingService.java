@@ -216,12 +216,12 @@ public class VersionPollingService {
         String versionSource = casbinProperties.getPolling().getVersionSource();
         VersionSourceParser.VersionSourceConfig sourceConfig  = VersionSourceParser.parse(versionSource);
         if( "database".equals(sourceConfig.getType())) {
-            databaseVersionChecker.setSqlQuery(versionSource);
+            databaseVersionChecker.setSqlQuery(sourceConfig.getQuery());
             selectedVersionChecker = databaseVersionChecker;
             log.info("Using Database version checker with endpoint: {}", versionSource);
         }
         if("api".equals(sourceConfig.getType())) {
-            apiVersionChecker.setApiEndpoint(versionSource);
+            apiVersionChecker.setApiEndpoint(sourceConfig.getQuery());
             selectedVersionChecker = apiVersionChecker;
             log.info("Using API version checker with endpoint: {}", versionSource);
         }

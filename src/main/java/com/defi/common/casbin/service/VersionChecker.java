@@ -18,10 +18,9 @@ public interface VersionChecker {
     /**
      * Gets the current version for a specific component code.
      * 
-     * @param code the component code (e.g., "policy_version")
      * @return current version number, or empty if not found or error occurred
      */
-    Optional<Long> getCurrentVersion(String code);
+    Optional<Long> getCurrentVersion();
 
     /**
      * Checks if the version checker is available and working.

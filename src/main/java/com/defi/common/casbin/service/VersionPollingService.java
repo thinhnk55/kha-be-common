@@ -1,7 +1,8 @@
 package com.defi.common.casbin.service;
 
-import com.defi.common.config.CasbinProperties;
 import com.defi.common.casbin.util.PolicySourceParser;
+import com.defi.common.config.CasbinProperties;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.casbin.jcasbin.main.Enforcer;
@@ -10,7 +11,6 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import jakarta.annotation.PostConstruct;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -74,20 +74,20 @@ public class VersionPollingService {
                 log.info("Version polling is disabled or not configured");
                 return;
             }
-
-            // Setup version checker based on policy source type
-            setupVersionChecker();
-
-            if (selectedVersionChecker == null || !selectedVersionChecker.isAvailable()) {
-                log.warn("Version checker is not available, polling disabled");
-                return;
+            if(casbinProperties.getPolling().isEnabled()){
+                // Setup version checker based on policy source type
+                setupVersionChecker();
+                if (selectedVersionChecker == null || !selectedVersionChecker.isAvailable()) {
+                    log.warn("Version checker is not available, polling disabled");
+                    return;
+                }
+                pollingEnabled = true;
+                log.info("Version polling enabled with {} using checker: {}",
+                        casbinProperties.getPolling().getDuration(),
+                        selectedVersionChecker.getDescription());
+            }else {
+                log.info("Version polling is disabled by configuration");
             }
-
-            pollingEnabled = true;
-            log.info("Version polling enabled with {} using checker: {}",
-                    casbinProperties.getPolling().getDuration(),
-                    selectedVersionChecker.getDescription());
-
         } catch (Exception e) {
             log.error("Failed to initialize version polling service", e);
         }
@@ -103,13 +103,12 @@ public class VersionPollingService {
         }
 
         try {
-            String versionCode = casbinProperties.getPolling().getVersionCode();
-            Optional<Long> currentVersion = selectedVersionChecker.getCurrentVersion(versionCode);
+            Optional<Long> currentVersion = selectedVersionChecker.getCurrentVersion();
 
             long version = currentVersion.orElse(0L);
             cachedVersion.set(version);
 
-            log.info("Loaded initial version: {} for code: {}", version, versionCode);
+            log.info("Loaded initial version: {}", version);
 
         } catch (Exception e) {
             log.error("Failed to load initial version", e);
@@ -137,11 +136,10 @@ public class VersionPollingService {
         }
 
         try {
-            String versionCode = casbinProperties.getPolling().getVersionCode();
-            Optional<Long> currentVersionOpt = selectedVersionChecker.getCurrentVersion(versionCode);
+            Optional<Long> currentVersionOpt = selectedVersionChecker.getCurrentVersion();
 
             if (currentVersionOpt.isEmpty()) {
-                log.debug("Unable to retrieve current version for code: {}", versionCode);
+                log.debug("Unable to retrieve current version");
                 return;
             }
 
@@ -149,8 +147,8 @@ public class VersionPollingService {
             long cachedVer = cachedVersion.get();
 
             if (currentVersion != cachedVer) {
-                log.info("Version change detected: {} -> {} for code: {}",
-                        cachedVer, currentVersion, versionCode);
+                log.info("Version change detected: {} -> {}",
+                        cachedVer, currentVersion);
 
                 // Trigger policy reload
                 reloadPolicies();
@@ -190,8 +188,8 @@ public class VersionPollingService {
     private boolean validatePollingConfiguration() {
         CasbinProperties.PollingConfig polling = casbinProperties.getPolling();
 
-        log.debug("Validating polling configuration - Duration: {}, VersionCode: {}, IsValid: {}",
-                polling.getDuration(), polling.getVersionCode(), polling.isValidForPolling());
+        log.debug("Validating polling configuration - Duration: {}, IsValid: {}",
+                polling.getDuration(), polling.isValidForPolling());
 
         if (!polling.isValidForPolling()) {
             log.info("Polling configuration is invalid or disabled");
@@ -221,38 +219,28 @@ public class VersionPollingService {
         return true;
     }
 
+    /**
+     * Sets up the version checker based on policy source type.
+     *
+     * <p>
+     * This method detects the policy source type and configures the
+     * appropriate version checker (database or API).
+     * </p>
+     */
+
+
     private void setupVersionChecker() {
-        String policySource = casbinProperties.getPolicySource();
-        PolicySourceParser.PolicySourceConfig sourceInfo = PolicySourceParser.parse(policySource);
-
-        switch (sourceInfo.getType()) {
-            case "database":
-                selectedVersionChecker = databaseVersionChecker;
-                log.info("Using database version checker for policy source: database");
-                break;
-
-            case "api":
-                setupApiVersionChecker();
-                selectedVersionChecker = apiVersionChecker;
-                log.info("Using API version checker for policy source: api");
-                break;
-
-            default:
-                log.warn("Unsupported policy source type for version checking: {}", sourceInfo.getType());
-                break;
+        String versionSource = casbinProperties.getPolling().getVersionSource();
+        if (versionSource != null && !versionSource.trim().isEmpty()) {
+            apiVersionChecker.setApiEndpoint(versionSource);
+            selectedVersionChecker = apiVersionChecker;
+            log.info("Using API version checker with endpoint: {}", versionSource);
+        }else{
+            selectedVersionChecker = databaseVersionChecker;
+            log.info("Using Database version checker");
         }
     }
 
-    private void setupApiVersionChecker() {
-        String versionApiEndpoint = casbinProperties.getPolling().getVersionApiEndpoint();
-        if (versionApiEndpoint == null || versionApiEndpoint.trim().isEmpty()) {
-            log.error("Version API endpoint not configured for API policy source");
-            return;
-        }
-
-        apiVersionChecker.setVersionApiEndpoint(versionApiEndpoint);
-        log.info("Configured API version checker with endpoint: {}", versionApiEndpoint);
-    }
 
     private void reloadPolicies() {
         try {
@@ -264,6 +252,7 @@ public class VersionPollingService {
             throw e; // Re-throw to be caught by the caller
         }
     }
+
     public void setCachedVersion(long version) {
         cachedVersion.set(version);
         log.info("Cached version updated to: {}", version);

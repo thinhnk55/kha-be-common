@@ -84,29 +84,21 @@ public class CasbinProperties {
          * Whether polling is enabled.
          * 
          * <p>
-         * Polling is automatically enabled when duration is configured
-         * and the policy source is 'database' or 'api'.
+         * Polling is enabled or not
          * </p>
          */
         private boolean enabled = false;
 
         /**
-         * Version code to check for policy changes.
-         * 
-         * <p>
-         * Default is "policy_version" for policy-related changes.
-         * </p>
+         * Version source configuration for checking policy changes.
+         *
+         * <ul>
+         * <li><strong>API source</strong>:
+         * {@code http://api.example.com/auth/v1/internal/version/policy_version}</li>
+         * </ul>
+         *
          */
-        private String versionCode = "policy_version";
-
-        /**
-         * API endpoint for version checking (when using api policy source).
-         * 
-         * <p>
-         * Example: https://auth-service/auth/v1/internal/version/{code}
-         * </p>
-         */
-        private String versionApiEndpoint;
+        private String versionSource;
 
         /**
          * Checks if polling configuration is valid.
@@ -115,8 +107,7 @@ public class CasbinProperties {
          */
         public boolean isValidForPolling() {
             return duration != null &&
-                    duration.toMinutes() >= 1 &&
-                    (versionCode != null && !versionCode.trim().isEmpty());
+                    duration.toMinutes() >= 1;
         }
 
         /**

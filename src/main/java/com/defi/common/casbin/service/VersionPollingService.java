@@ -168,24 +168,6 @@ public class VersionPollingService {
         }
     }
 
-    /**
-     * Gets the current cached version.
-     * 
-     * @return current cached version number
-     */
-    public long getCachedVersion() {
-        return cachedVersion.get();
-    }
-
-    /**
-     * Checks if polling is enabled and working.
-     * 
-     * @return true if polling is operational
-     */
-    public boolean isPollingEnabled() {
-        return pollingEnabled;
-    }
-
     private boolean validatePollingConfiguration() {
         CasbinProperties.PollingConfig polling = casbinProperties.getPolling();
 

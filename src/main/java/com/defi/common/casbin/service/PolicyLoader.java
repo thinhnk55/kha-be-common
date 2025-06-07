@@ -149,15 +149,11 @@ public class PolicyLoader {
     private List<PolicyRule> loadPolicyRules(String policyType, String policyQuery, List<String> resources) {
         log.debug("Loading policy rules - Type: {}, Query: {}, Resources: {}", policyType, policyQuery, resources);
 
-        switch (policyType) {
-            case "database":
-                return databasePolicyLoader.loadPolicyRulesFromDatabase(policyQuery, resources);
-            case "resource":
-                return resourcePolicyLoader.loadPolicyRulesFromCsv(policyQuery, resources);
-            case "api":
-                return apiPolicyLoader.loadPolicyRulesFromApi(policyQuery, resources);
-            default:
-                throw new RuntimeException("Unsupported policy type: " + policyType);
-        }
+        return switch (policyType) {
+            case "database" -> databasePolicyLoader.loadPolicyRulesFromDatabase(policyQuery, resources);
+            case "resource" -> resourcePolicyLoader.loadPolicyRulesFromCsv(policyQuery, resources);
+            case "api" -> apiPolicyLoader.loadPolicyRulesFromApi(policyQuery, resources);
+            default -> throw new RuntimeException("Unsupported policy type: " + policyType);
+        };
     }
 }

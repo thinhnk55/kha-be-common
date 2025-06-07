@@ -1,6 +1,7 @@
 package com.defi.common.casbin.service;
 
 import com.defi.common.casbin.util.PolicySourceParser;
+import com.defi.common.casbin.util.VersionSourceParser;
 import com.defi.common.config.CasbinProperties;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -231,13 +232,16 @@ public class VersionPollingService {
 
     private void setupVersionChecker() {
         String versionSource = casbinProperties.getPolling().getVersionSource();
-        if (versionSource != null && !versionSource.trim().isEmpty()) {
+        VersionSourceParser.VersionSourceConfig sourceConfig  = VersionSourceParser.parse(versionSource);
+        if( "database".equals(sourceConfig.getType())) {
+            databaseVersionChecker.setSqlQuery(versionSource);
+            selectedVersionChecker = databaseVersionChecker;
+            log.info("Using Database version checker with endpoint: {}", versionSource);
+        }
+        if("api".equals(sourceConfig.getType())) {
             apiVersionChecker.setApiEndpoint(versionSource);
             selectedVersionChecker = apiVersionChecker;
             log.info("Using API version checker with endpoint: {}", versionSource);
-        }else{
-            selectedVersionChecker = databaseVersionChecker;
-            log.info("Using Database version checker");
         }
     }
 
@@ -249,7 +253,7 @@ public class VersionPollingService {
             log.info("Policies reloaded successfully");
         } catch (Exception e) {
             log.error("Failed to reload policies", e);
-            throw e; // Re-throw to be caught by the caller
+            throw e;
         }
     }
 

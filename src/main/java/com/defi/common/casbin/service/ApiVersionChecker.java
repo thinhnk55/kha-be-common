@@ -78,7 +78,12 @@ public class ApiVersionChecker implements VersionChecker {
 
     @Override
     public boolean isAvailable() {
-        return apiEndpoint != null && !apiEndpoint.trim().isEmpty();
+        if(apiEndpoint != null && !apiEndpoint.trim().isEmpty()){
+            String jsonResponse = restTemplate.getForObject(apiEndpoint, String.class);
+            return !jsonResponse.trim().isEmpty();
+        }
+        log.debug("Version API endpoint not configured or empty");
+        return false;
     }
 
     @Override

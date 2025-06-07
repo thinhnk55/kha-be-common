@@ -50,12 +50,12 @@ public class DatabasePolicyLoader {
     /**
      * Loads policy rules from database using a custom SQL query.
      * 
+     * @param sqlQuery  the SQL query to execute
      * @param resources list of resource codes to filter by (empty list loads all)
      * @return list of policy rules loaded from database
      * @throws RuntimeException if database query fails
      */
-    public List<PolicyRule> loadPolicyRulesFromDatabase(List<String> resources) {
-        String sqlQuery = "SELECT * FROM auth.policy_rules";
+    public List<PolicyRule> loadPolicyRulesFromDatabase(String sqlQuery, List<String> resources) {
         log.info("Loading policy rules from database with query: {}", sqlQuery);
 
         try {

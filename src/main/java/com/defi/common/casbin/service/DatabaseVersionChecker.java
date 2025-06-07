@@ -25,13 +25,17 @@ import java.util.Optional;
 public class DatabaseVersionChecker implements VersionChecker {
 
     private final JdbcTemplate jdbcTemplate;
+    private String sqlQuery;
+
+    public void setSqlQuery(String sqlQuery) {
+        this.sqlQuery = sqlQuery;
+    }
 
 
     @Override
     public Optional<Long> getCurrentVersion() {
         try {
-            String sql = "SELECT version FROM auth.auth_version WHERE code = 'policy_version'";
-            Long version = jdbcTemplate.queryForObject(sql, Long.class);
+            Long version = jdbcTemplate.queryForObject(sqlQuery, Long.class);
             return Optional.of(version);
         } catch (Exception e) {
             log.debug("Failed to get version from database using default query", e);
@@ -41,18 +45,12 @@ public class DatabaseVersionChecker implements VersionChecker {
 
     @Override
     public boolean isAvailable() {
-        try {
-            // Simple connectivity test
-            jdbcTemplate.queryForObject("SELECT 1", Integer.class);
-            return true;
-        } catch (Exception e) {
-            log.debug("Database version checker is not available", e);
-            return false;
-        }
+        jdbcTemplate.queryForObject(sqlQuery, Long.class);
+        return true;
     }
 
     @Override
     public String getDescription() {
-        return "Database-based version checker using: SELECT version FROM auth.auth_version WHERE code = 'policy_version' ";
+        return "Database-based version checker using: " + sqlQuery;
     }
 }

@@ -49,7 +49,7 @@ dependencies {
 
 	implementation("org.flywaydb:flyway-core:11.8.2")
 	runtimeOnly("org.flywaydb:flyway-database-postgresql:11.8.2")
-	runtimeOnly("org.postgresql:postgresql:42.7.5")
+	runtimeOnly("org.postgresql:postgresql:42.7.7")
 	implementation("io.hypersistence:hypersistence-utils-hibernate-60:3.9.4")
 
 

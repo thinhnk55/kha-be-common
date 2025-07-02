@@ -3,6 +3,7 @@ package com.defi.common.log.appender;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
 import com.defi.common.context.ApplicationContextHolder;
+import com.defi.common.log.DebugLogger;
 import com.defi.common.log.ErrorLogger;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -47,23 +48,11 @@ public class EventRedisAppender extends AppenderBase<ILoggingEvent> {
      */
     private String fieldName;
 
-    private StringRedisTemplate redisTemplate;
-    private ErrorLogger errorLogger;
-
     /**
-     * Initializes dependencies from Spring context once the appender starts.
-     * Uses {@link ApplicationContextHolder} for late binding.
+     * Redis template will be injected by logback-spring.xml.
      */
-    @Override
-    public void start() {
-        try {
-            this.redisTemplate = ApplicationContextHolder.getBean(StringRedisTemplate.class);
-            this.errorLogger = ApplicationContextHolder.getBean(ErrorLogger.class);
-        } catch (Exception e) {
-            errorLogger.create(e).log();
-        }
-        super.start();
-    }
+    private StringRedisTemplate stringRedisTemplate;
+
 
     /**
      * Called for each log event. Converts the message to a simple map
@@ -76,9 +65,9 @@ public class EventRedisAppender extends AppenderBase<ILoggingEvent> {
         try {
             String message = eventObject.getFormattedMessage();
             Map<String, String> body = Collections.singletonMap(fieldName, message);
-            redisTemplate.opsForStream().add(streamName, body);
+            stringRedisTemplate.opsForStream().add(streamName, body);
         } catch (Exception e) {
-            errorLogger.create(e).log();
+            DebugLogger.logger.error("", e);
         }
     }
 }

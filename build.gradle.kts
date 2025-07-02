@@ -19,7 +19,7 @@ tasks.jar {
 
 val groupId = "com.github.thinhnk55"
 val artifactId = "kha-be-common"
-val versionId = "1.0.9"
+val versionId = "1.0.10"
 
 group = groupId
 version = versionId

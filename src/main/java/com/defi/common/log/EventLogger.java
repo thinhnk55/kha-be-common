@@ -5,14 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 /**
  * A bean for logging structured business or system events.
  * Events are logged as a single JSON line to a dedicated "event" logger,
  * which can be configured to write to a separate file (e.g., logs/event.log).
  */
-@Component
 @RequiredArgsConstructor
 public class EventLogger {
 
@@ -30,7 +28,7 @@ public class EventLogger {
             try {
                 logger.info(mapper.writeValueAsString(event));
             } catch (Exception e) {
-                logger.error("Failed to serialize EventLog", e);
+                DebugLogger.logger.error("", e);
             }
         }
     }

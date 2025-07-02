@@ -6,9 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.GenericToStringSerializer;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
 /**
  * {@code RedisConfig} configures Redis connection and template beans for the
@@ -60,20 +58,13 @@ public class RedisConfig {
     }
 
     /**
-     * Creates a RedisTemplate configured for String keys and Integer values.
-     * Uses StringRedisSerializer for keys and GenericToStringSerializer for Integer
-     * values.
+     * Creates a RedisTemplate
      *
      * @param connectionFactory the Redis connection factory
-     * @return a configured RedisTemplate for String-Integer operations
+     * @return a configured RedisTemplate operations
      */
     @Bean
-    public RedisTemplate<String, Integer> redisTemplate(RedisConnectionFactory connectionFactory) {
-        RedisTemplate<String, Integer> template = new RedisTemplate<>();
-        template.setConnectionFactory(connectionFactory);
-        template.setKeySerializer(new StringRedisSerializer());
-        template.setValueSerializer(new GenericToStringSerializer<>(Integer.class));
-        template.afterPropertiesSet();
-        return template;
+    public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory connectionFactory) {
+        return new StringRedisTemplate(connectionFactory);
     }
 }
